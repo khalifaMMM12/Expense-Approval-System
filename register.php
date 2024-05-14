@@ -90,3 +90,48 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["register"])) {
     $mysqli->close();
 }
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>Register</h2>
+        <?php 
+        if(!empty($username_err)){
+            echo '<div class="alert alert-danger">' . $username_err . '</div>';
+        }        
+        if(!empty($password_err)){
+            echo '<div class="alert alert-danger">' . $password_err . '</div>';
+        }        
+        if(!empty($confirm_password_err)){
+            echo '<div class="alert alert-danger">' . $confirm_password_err . '</div>';
+        }        
+        ?>
+        <form action="register.php" method="post">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" class="form-control" value="<?php echo $username; ?>" required>
+            </div>    
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" class="form-control" value="<?php echo $password; ?>" required>
+            </div>
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" name="confirm_password" class="form-control" value="<?php echo $confirm_password; ?>" required>
+            </div>
+            <div class="form-group">
+                <input type="submit" name="register" class="btn btn-primary" value="Register">
+            </div>
+            <p>Already have an account? <a href="login.php">Login here</a>.</p>
+        </form>
+    </div>    
+</body>
+</html>

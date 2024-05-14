@@ -1,3 +1,41 @@
+<?php
+session_start();
+
+// Check if the user is logged in
+if(!isset($_SESSION["user_id"])) {
+    header("Location: login.php");
+    exit;
+}
+
+// Include database connection
+require_once "db_connection.php";
+
+// Fetch pending expenses for admin view
+if($_SESSION["role"] == 'admin') {
+    $sql = "SELECT E.expense_id, E.description, E.amount, E.status, U.username 
+            FROM Expenses E 
+            JOIN Users U ON E.user_id = U.user_id 
+            WHERE E.status = 'Pending' 
+            ORDER BY E.created_at DESC";
+    $stmt = $mysqli->prepare($sql);
+    $stmt->execute();
+    $pending_expenses = $stmt->get_result();
+} else {
+    // Fetch expenses only for the logged-in user
+    $sql = "SELECT expense_id, description, amount, status 
+            FROM Expenses 
+            WHERE user_id = ? AND status = 'Pending' 
+            ORDER BY created_at DESC";
+    $stmt = $mysqli->prepare($sql);
+    $stmt->bind_param("i", $_SESSION["user_id"]);
+    $stmt->execute();
+    $pending_expenses = $stmt->get_result();
+}
+
+// Close statement and connection
+$stmt->close();
+$mysqli->close();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -19,22 +57,18 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Home</a>
+                    <a class="nav-link" href="index.php">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Submit Expense</a>
+                    <a class="nav-link" href="submit_expense.php">Submit Expense</a>
                 </li>
+                <?php if($_SESSION["role"] == 'admin'): ?>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Pending Expenses</a>
+                    <a class="nav-link" href="dashboard.php">Dashboard</a>
                 </li>
+                <?php endif; ?>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Approved Expenses</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Rejected Expenses</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Logout</a>
+                    <a class="nav-link" href="logout.php">Logout</a>
                 </li>
             </ul>
         </div>
@@ -43,9 +77,9 @@
     <!-- Main Content Area -->
     <div class="container mt-4">
         <h2>Welcome to the Expense Approval System</h2>
-        <!-- Main Content Area -->
-        <div class="container mt-4">
-            <!-- Submit Expense Form -->
+        
+        <!-- Submit Expense Form -->
+        <div class="mt-4">
             <h2>Submit Expense</h2>
             <form action="submit_expense.php" method="POST">
                 <div class="form-group">
@@ -58,40 +92,43 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
+        </div>
 
-            <!-- Pending Expenses Table -->
-            <h2 class="mt-4">Pending Expenses</h2>
+        <!-- Pending Expenses Table -->
+        <div class="mt-4">
+            <h2>Pending Expenses</h2>
             <table class="table">
                 <thead>
                     <tr>
                         <th>Expense ID</th>
                         <th>Amount</th>
                         <th>Description</th>
+                        <th>Status</th>
+                        <?php if($_SESSION["role"] == 'admin'): ?>
+                        <th>User</th>
                         <th>Action</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Example row -->
+                    <?php while($row = $pending_expenses->fetch_assoc()): ?>
                     <tr>
-                        <td>1</td>
-                        <td>$100</td>
-                        <td>Office Supplies</td>
+                        <td><?php echo $row['expense_id']; ?></td>
+                        <td><?php echo $row['amount']; ?></td>
+                        <td><?php echo $row['description']; ?></td>
+                        <td><?php echo $row['status']; ?></td>
+                        <?php if($_SESSION["role"] == 'admin'): ?>
+                        <td><?php echo $row['username']; ?></td>
                         <td>
-                            <form action="approve_expense.php" method="POST" style="display: inline;">
-                                <input type="hidden" name="expense_id" value="1">
-                                <button type="submit" class="btn btn-success btn-sm">Approve</button>
-                            </form>
-                            <form action="reject_expense.php" method="POST" style="display: inline;">
-                                <input type="hidden" name="expense_id" value="1">
-                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
-                            </form>
+                            <a href="approve_expense.php?expense_id=<?php echo $row['expense_id']; ?>" class="btn btn-success btn-sm">Approve</a>
+                            <a href="reject_expense.php?expense_id=<?php echo $row['expense_id']; ?>" class="btn btn-danger btn-sm">Reject</a>
                         </td>
+                        <?php endif; ?>
                     </tr>
-                    <!-- Add more rows dynamically -->
+                    <?php endwhile; ?>
                 </tbody>
             </table>
         </div>
-
     </div>
 
     <!-- Bootstrap JS (optional, for certain Bootstrap components that require JavaScript) -->

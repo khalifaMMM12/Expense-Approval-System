@@ -1,0 +1,9 @@
+/* styles.css */
+.container {
+    max-width: 800px;
+}
+
+.btn-success,
+.btn-danger {
+    margin-right: 5px;
+}
