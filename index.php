@@ -2,7 +2,7 @@
 session_start();
 
 // Check if the user is logged in
-if (!isset($_SESSION["user_id"])) {
+if(!isset($_SESSION["user_id"])) {
     header("Location: login.php");
     exit;
 }
@@ -10,14 +10,27 @@ if (!isset($_SESSION["user_id"])) {
 // Include database connection
 require_once "db_connection.php";
 
-// Fetch all expenses including pending, approved, and rejected
-$sql = "SELECT E.expense_id, E.description, E.amount, E.status, U.username 
-        FROM Expenses E 
-        JOIN Users U ON E.user_id = U.user_id 
-        ORDER BY E.expense_id DESC"; // Order by expense_id to maintain correct sequence
-$stmt = $mysqli->prepare($sql);
-$stmt->execute();
-$expenses = $stmt->get_result();
+// Fetch pending expenses for admin view
+if($_SESSION["role"] == 'admin') {
+    $sql = "SELECT E.expense_id, E.description, E.amount, E.status, U.username 
+            FROM Expenses E 
+            JOIN Users U ON E.user_id = U.user_id 
+            WHERE E.status = 'Pending' 
+            ORDER BY E.created_at DESC";
+    $stmt = $mysqli->prepare($sql);
+    $stmt->execute();
+    $pending_expenses = $stmt->get_result();
+} else {
+    // Fetch expenses only for the logged-in user
+    $sql = "SELECT expense_id, description, amount, status 
+            FROM Expenses 
+            WHERE user_id = ? AND status = 'Pending' 
+            ORDER BY created_at DESC";
+    $stmt = $mysqli->prepare($sql);
+    $stmt->bind_param("i", $_SESSION["user_id"]);
+    $stmt->execute();
+    $pending_expenses = $stmt->get_result();
+}
 
 // Close statement and connection
 $stmt->close();
@@ -29,10 +42,10 @@ $mysqli->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Approval System</title>
-    
+    <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link href="style/index.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="styles.css" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation Menu -->
@@ -49,6 +62,11 @@ $mysqli->close();
                 <li class="nav-item">
                     <a class="nav-link" href="submit_expense.php">Submit Expense</a>
                 </li>
+                <?php if($_SESSION["role"] == 'admin'): ?>
+                <li class="nav-item">
+                    <a class="nav-link" href="dashboard.php">Dashboard</a>
+                </li>
+                <?php endif; ?>
                 <li class="nav-item">
                     <a class="nav-link" href="logout.php">Logout</a>
                 </li>
@@ -60,40 +78,52 @@ $mysqli->close();
     <div class="container mt-4">
         <h2>Welcome to the Expense Approval System</h2>
         
-        <!-- All Expenses Table -->
+        <!-- Submit Expense Form -->
         <div class="mt-4">
-            <h2>All Expenses</h2>
+            <h2>Submit Expense</h2>
+            <form action="submit_expense.php" method="POST">
+                <div class="form-group">
+                    <label for="amount">Amount:</label>
+                    <input type="number" class="form-control" id="amount" name="amount" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+
+        <!-- Pending Expenses Table -->
+        <div class="mt-4">
+            <h2>Pending Expenses</h2>
             <table class="table">
                 <thead>
                     <tr>
                         <th>Expense ID</th>
-                        <th>Amount (₦)</th>
+                        <th>Amount</th>
                         <th>Description</th>
                         <th>Status</th>
+                        <?php if($_SESSION["role"] == 'admin'): ?>
                         <th>User</th>
                         <th>Action</th>
+                        <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php 
-                    $counter = 1; // Initialize counter for IDs
-                    while ($row = $expenses->fetch_assoc()): ?>
+                    <?php while($row = $pending_expenses->fetch_assoc()): ?>
                     <tr>
-                        <td><?php echo $counter++; ?></td> <!-- Use the counter instead of expense_id -->
-                        <td>₦<?php echo number_format($row['amount'], 2); ?></td>
+                        <td><?php echo $row['expense_id']; ?></td>
+                        <td><?php echo $row['amount']; ?></td>
                         <td><?php echo $row['description']; ?></td>
-                        <td class="<?php echo strtolower($row['status']); ?>"><?php echo $row['status']; ?></td>
+                        <td><?php echo $row['status']; ?></td>
+                        <?php if($_SESSION["role"] == 'admin'): ?>
                         <td><?php echo $row['username']; ?></td>
                         <td>
-                            <?php if ($_SESSION['role'] === 'admin'): ?>
-                                <form action="delete_expense.php" method="POST" onsubmit="return confirm('Are you sure you want to delete this expense?');" style="display:inline;">
-                                    <input type="hidden" name="expense_id" value="<?php echo $row['expense_id']; ?>">
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </form>
-                            <?php endif; ?>
+                            <a href="approve_expense.php?expense_id=<?php echo $row['expense_id']; ?>" class="btn btn-success btn-sm">Approve</a>
+                            <a href="reject_expense.php?expense_id=<?php echo $row['expense_id']; ?>" class="btn btn-danger btn-sm">Reject</a>
                         </td>
+                        <?php endif; ?>
                     </tr>
                     <?php endwhile; ?>
                 </tbody>
@@ -101,6 +131,7 @@ $mysqli->close();
         </div>
     </div>
 
+    <!-- Bootstrap JS (optional, for certain Bootstrap components that require JavaScript) -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
