@@ -14,7 +14,7 @@ require_once "db_connection.php";
 $sql = "SELECT E.expense_id, E.description, E.amount, E.status, U.username 
         FROM Expenses E 
         JOIN Users U ON E.user_id = U.user_id 
-        ORDER BY E.created_at DESC";
+        ORDER BY E.expense_id DESC"; // Order by expense_id to maintain correct sequence
 $stmt = $mysqli->prepare($sql);
 $stmt->execute();
 $expenses = $stmt->get_result();
@@ -29,6 +29,7 @@ $mysqli->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Expense Approval System</title>
+    
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="style/index.css" rel="stylesheet">
@@ -56,7 +57,7 @@ $mysqli->close();
     </nav>
 
     <!-- Main Content Area -->
-    <div class="container mt-6">
+    <div class="container mt-4">
         <h2>Welcome to the Expense Approval System</h2>
         
         <!-- All Expenses Table -->
@@ -74,9 +75,11 @@ $mysqli->close();
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($row = $expenses->fetch_assoc()): ?>
+                    <?php 
+                    $counter = 1; // Initialize counter for IDs
+                    while ($row = $expenses->fetch_assoc()): ?>
                     <tr>
-                        <td><?php echo $row['expense_id']; ?></td>
+                        <td><?php echo $counter++; ?></td> <!-- Use the counter instead of expense_id -->
                         <td>₦<?php echo number_format($row['amount'], 2); ?></td>
                         <td><?php echo $row['description']; ?></td>
                         <td class="<?php echo strtolower($row['status']); ?>"><?php echo $row['status']; ?></td>
@@ -98,7 +101,6 @@ $mysqli->close();
         </div>
     </div>
 
-    <!-- Bootstrap JS (optional, for certain Bootstrap components that require JavaScript) -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
