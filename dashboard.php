@@ -57,7 +57,7 @@ $mysqli->close();
     </nav>
 
     <!-- Main Content Area -->
-    <div class="container mt-4">
+    <div class="container mt-6">
         <h2>Welcome to the Expense Approval System</h2>
         
         <!-- All Expenses Table -->

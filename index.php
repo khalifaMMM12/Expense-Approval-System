@@ -112,11 +112,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["index"])) {
                 <!-- <li class="nav-item">
                     <a class="nav-link" href="index.php">Submit Expense</a>
                 </li> -->
-                <?php if ($_SESSION["role"] == 'admin'): ?>
+                
                 <li class="nav-item">
                     <a class="nav-link" href="dashboard.php">Dashboard</a>
                 </li>
-                <?php endif; ?>
+                
                 <li class="nav-item">
                     <a class="nav-link" href="logout.php">Logout</a>
                 </li>
@@ -125,7 +125,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["index"])) {
     </nav>
 
     <!-- Main Content Area -->
-    <div class="container mt-4">
+    <div class="container mt-6">
         <h2>Welcome to the Expense Approval System</h2>
         
         <!-- Submit Expense Form -->
