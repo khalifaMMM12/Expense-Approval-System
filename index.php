@@ -32,9 +32,59 @@ if ($_SESSION["role"] == 'admin') {
     $pending_expenses = $stmt->get_result();
 }
 
-// Close statement and connection
-$stmt->close();
-$mysqli->close();
+
+// Define variables and initialize with empty values
+$description = $amount = "";
+$description_err = $amount_err = "";
+
+// Process form data when form is submitted
+if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["index"])) {
+    // Validate description
+    if(empty(trim($_POST["description"]))) {
+        $description_err = "Please enter a description.";
+    } else {
+        $description = trim($_POST["description"]);
+    }
+
+    // Validate amount
+    if(empty(trim($_POST["amount"]))) {
+        $amount_err = "Please enter an amount.";
+    } elseif(!is_numeric(trim($_POST["amount"]))) {
+        $amount_err = "Please enter a valid amount.";
+    } else {
+        $amount = trim($_POST["amount"]);
+    }
+
+    // Check input errors before inserting into database
+    if(empty($description_err) && empty($amount_err)) {
+        // Prepare SQL statement to insert expense into database
+        $sql = "INSERT INTO Expenses (user_id, description, amount, status) VALUES (?, ?, ?, 'Pending')";
+
+        if($stmt = $mysqli->prepare($sql)) {
+            // Bind parameters
+            $stmt->bind_param("isd", $param_user_id, $param_description, $param_amount);
+            $param_user_id = $_SESSION["user_id"];
+            $param_description = $description;
+            $param_amount = $amount;
+
+            // Execute statement
+            if($stmt->execute()) {
+                // Redirect to a confirmation page or the dashboard
+                header("Location: dashboard.php");
+            } else {
+                // Error executing statement
+                echo "Oops! Something went wrong. Please try again later.";
+            }
+
+            // Close statement
+            $stmt->close();
+        }
+    }
+
+    // Close statement and connection
+    $stmt->close();
+    $mysqli->close();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -59,9 +109,9 @@ $mysqli->close();
                 <li class="nav-item active">
                     <a class="nav-link" href="index.php">Home</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="submit_expense.php">Submit Expense</a>
-                </li>
+                <!-- <li class="nav-item">
+                    <a class="nav-link" href="index.php">Submit Expense</a>
+                </li> -->
                 <?php if ($_SESSION["role"] == 'admin'): ?>
                 <li class="nav-item">
                     <a class="nav-link" href="dashboard.php">Dashboard</a>
@@ -81,17 +131,27 @@ $mysqli->close();
         <!-- Submit Expense Form -->
         <div class="mt-4">
             <h2>Submit Expense</h2>
-            <form action="submit_expense.php" method="POST">
-                <div class="form-group">
-                    <label for="amount">Amount:</label>
-                    <input type="number" class="form-control" id="amount" name="amount" required>
-                </div>
-                <div class="form-group">
-                    <label for="description">Description:</label>
-                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
+            <?php 
+        if(!empty($description_err)){
+            echo '<div class="alert alert-danger">' . $description_err . '</div>';
+        }        
+        if(!empty($amount_err)){
+            echo '<div class="alert alert-danger">' . $amount_err . '</div>';
+        }        
+        ?>
+        <form action="index.php" method="post">
+            <div class="form-group">
+                <label>Description</label>
+                <input type="text" name="description" class="form-control" value="<?php echo $description; ?>" required>
+            </div>    
+            <div class="form-group">
+                <label>Amount</label>
+                <input type="text" name="amount" class="form-control" value="<?php echo $amount; ?>" required>
+            </div>
+            <div class="form-group">
+                <input type="submit" name="index" class="btn btn-primary" value="Submit">
+            </div>
+        </form>
         </div>
 
         <!-- Pending Expenses Table -->

@@ -47,7 +47,7 @@ $mysqli->close();
                     <a class="nav-link" href="index.php">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="submit_expense.php">Submit Expense</a>
+                    <a class="nav-link" href="index.php">Submit Expense</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="logout.php">Logout</a>

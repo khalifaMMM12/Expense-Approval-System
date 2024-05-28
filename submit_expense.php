@@ -15,7 +15,7 @@ $description = $amount = "";
 $description_err = $amount_err = "";
 
 // Process form data when form is submitted
-if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit_expense"])) {
+if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["index"])) {
     // Validate description
     if(empty(trim($_POST["description"]))) {
         $description_err = "Please enter a description.";
@@ -84,7 +84,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit_expense"])) {
                     <a class="nav-link" href="index.php">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="submit_expense.php">Submit Expense</a>
+                    <a class="nav-link" href="index.php">Submit Expense</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="logout.php">Logout</a>
@@ -102,7 +102,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit_expense"])) {
             echo '<div class="alert alert-danger">' . $amount_err . '</div>';
         }        
         ?>
-        <form action="submit_expense.php" method="post">
+        <form action="index.php" method="post">
             <div class="form-group">
                 <label>Description</label>
                 <input type="text" name="description" class="form-control" value="<?php echo $description; ?>" required>
@@ -112,7 +112,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit_expense"])) {
                 <input type="text" name="amount" class="form-control" value="<?php echo $amount; ?>" required>
             </div>
             <div class="form-group">
-                <input type="submit" name="submit_expense" class="btn btn-primary" value="Submit">
+                <input type="submit" name="index" class="btn btn-primary" value="Submit">
             </div>
         </form>
     </div>    
