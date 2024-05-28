@@ -2,7 +2,7 @@
 session_start();
 
 // Check if the user is logged in
-if(!isset($_SESSION["user_id"])) {
+if (!isset($_SESSION["user_id"])) {
     header("Location: login.php");
     exit;
 }
@@ -11,7 +11,7 @@ if(!isset($_SESSION["user_id"])) {
 require_once "db_connection.php";
 
 // Fetch pending expenses for admin view
-if($_SESSION["role"] == 'admin') {
+if ($_SESSION["role"] == 'admin') {
     $sql = "SELECT E.expense_id, E.description, E.amount, E.status, U.username 
             FROM Expenses E 
             JOIN Users U ON E.user_id = U.user_id 
@@ -45,7 +45,7 @@ $mysqli->close();
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="styles.css" rel="stylesheet">
+    <link href="style/index.css" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation Menu -->
@@ -62,7 +62,7 @@ $mysqli->close();
                 <li class="nav-item">
                     <a class="nav-link" href="submit_expense.php">Submit Expense</a>
                 </li>
-                <?php if($_SESSION["role"] == 'admin'): ?>
+                <?php if ($_SESSION["role"] == 'admin'): ?>
                 <li class="nav-item">
                     <a class="nav-link" href="dashboard.php">Dashboard</a>
                 </li>
@@ -97,27 +97,27 @@ $mysqli->close();
         <!-- Pending Expenses Table -->
         <div class="mt-4">
             <h2>Pending Expenses</h2>
-            <table class="table">
+            <table class="table table-striped table-bordered">
                 <thead>
                     <tr>
                         <th>Expense ID</th>
-                        <th>Amount</th>
+                        <th>Amount (₦)</th>
                         <th>Description</th>
                         <th>Status</th>
-                        <?php if($_SESSION["role"] == 'admin'): ?>
+                        <?php if ($_SESSION["role"] == 'admin'): ?>
                         <th>User</th>
                         <th>Action</th>
                         <?php endif; ?>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while($row = $pending_expenses->fetch_assoc()): ?>
+                    <?php while ($row = $pending_expenses->fetch_assoc()): ?>
                     <tr>
                         <td><?php echo $row['expense_id']; ?></td>
-                        <td><?php echo $row['amount']; ?></td>
+                        <td><?php echo number_format($row['amount'], 2); ?></td>
                         <td><?php echo $row['description']; ?></td>
                         <td><?php echo $row['status']; ?></td>
-                        <?php if($_SESSION["role"] == 'admin'): ?>
+                        <?php if ($_SESSION["role"] == 'admin'): ?>
                         <td><?php echo $row['username']; ?></td>
                         <td>
                             <a href="approve_expense.php?expense_id=<?php echo $row['expense_id']; ?>" class="btn btn-success btn-sm">Approve</a>
