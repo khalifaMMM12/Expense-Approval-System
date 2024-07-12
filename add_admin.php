@@ -4,7 +4,7 @@ require_once "db_connection.php";
 
 // Define admin credentials
 $admin_username = "admin";
-$admin_password = "password"; // Replace with the desired admin password
+$admin_password = "admin1234"; // Replace with the desired admin password
 
 // Hash the admin password
 $hashed_password = password_hash($admin_password, PASSWORD_DEFAULT);

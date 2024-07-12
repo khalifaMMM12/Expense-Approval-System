@@ -99,33 +99,33 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["register"])) {
     <title>Register</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .wrapper {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-4">
+    <div class="wrapper mt-4">
         <h2>Register</h2>
-        <?php 
-        if(!empty($username_err)){
-            echo '<div class="alert alert-danger">' . $username_err . '</div>';
-        }        
-        if(!empty($password_err)){
-            echo '<div class="alert alert-danger">' . $password_err . '</div>';
-        }        
-        if(!empty($confirm_password_err)){
-            echo '<div class="alert alert-danger">' . $confirm_password_err . '</div>';
-        }        
-        ?>
+        <p>Please fill this form to create an account.</p>
         <form action="register.php" method="post">
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" name="username" class="form-control" value="<?php echo $username; ?>" required>
+                <input type="text" name="username" class="form-control <?php echo (!empty($username_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $username; ?>" required>
+                <span class="invalid-feedback"><?php echo $username_err; ?></span>
             </div>    
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" name="password" class="form-control" value="<?php echo $password; ?>" required>
+                <input type="password" name="password" class="form-control <?php echo (!empty($password_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $password; ?>" required>
+                <span class="invalid-feedback"><?php echo $password_err; ?></span>
             </div>
             <div class="form-group">
                 <label>Confirm Password</label>
-                <input type="password" name="confirm_password" class="form-control" value="<?php echo $confirm_password; ?>" required>
+                <input type="password" name="confirm_password" class="form-control <?php echo (!empty($confirm_password_err)) ? 'is-invalid' : ''; ?>" value="<?php echo $confirm_password; ?>" required>
+                <span class="invalid-feedback"><?php echo $confirm_password_err; ?></span>
             </div>
             <div class="form-group">
                 <input type="submit" name="register" class="btn btn-primary" value="Register">
