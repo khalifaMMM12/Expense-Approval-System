@@ -99,6 +99,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["register"])) {
     <title>Register</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href=style/login.css rel="stylesheet"> 
     <style>
         .wrapper {
             width: 100%;
