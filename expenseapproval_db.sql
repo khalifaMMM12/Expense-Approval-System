@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 12, 2024 at 11:28 AM
+-- Generation Time: Jul 23, 2024 at 07:22 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -64,7 +64,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `username`, `email`, `password`, `role`, `created_at`) VALUES
 (2, 'admin', '', '$2y$10$/u1IOvRwKoi0dCn2oRsLF.NdtCn3IiExwvapXkS/ndGP8AVpFpIe6', 'admin', '2024-07-12 09:09:27'),
-(3, 'Khalifa', '', '$2y$10$s0.kCIzQVMfhhpEkm63G3OldNBxLySBlU1edhJ3pjt/ea.Vhhg3mi', 'user', '2024-07-12 09:12:47');
+(3, 'Khalifa', '', '$2y$10$s0.kCIzQVMfhhpEkm63G3OldNBxLySBlU1edhJ3pjt/ea.Vhhg3mi', 'user', '2024-07-12 09:12:47'),
+(4, 'Target', '', '$2y$10$4on6TRZCyYbmypfJI6Wdj.259D7.KLz5TZ7wCFF9NJZV28WC56NsC', 'user', '2024-07-23 17:19:49');
 
 --
 -- Indexes for dumped tables
@@ -97,7 +98,7 @@ ALTER TABLE `expenses`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables
